@@ -152,7 +152,8 @@ Trong *Đặt chỗ của tôi*, khách vừa nhận tin chuyến huỷ, nhắn 
 # Repo & kịch bản demo
 
 ## Cấu trúc repo
-<img width="729" height="446" alt="image" src="https://github.com/user-attachments/assets/3808f25f-dad3-4fb1-9bf2-66455cafa3b6" />
+<img width="429" height="538" alt="image" src="https://github.com/user-attachments/assets/9ab52fea-8348-4bfd-ade8-5a637f4b4537" />
+
 
 
 
