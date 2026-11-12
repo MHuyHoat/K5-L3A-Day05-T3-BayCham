@@ -2,11 +2,13 @@
 
 ## Danh sách thành viên và việc mỗi người làm
 
+**Lớp:** L3A · **Bàn / zone:** [Điền bàn/zone] · **Track:** T3 Du lịch
+
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
 | Mai Huy Hoạt | 2A202603656 | A · Kịch bản & khung: chặng 1–2, bảng kịch bản, §1, §2, §6, repo và kịch bản demo |
 | Nguyễn Đình Quang | 2A202603620 | B · UX khi AI sai & Prototype: chặng 3, 5, §3, prototype/ và demo màn hình |
-| [Điền tên C] | [Điền Mã HV] | C · Mức tự chủ & Kiểm thử: chặng 4, §4, hard tests và kiểm thử prototype |
+| Trần Thái Hưng | 2A202603557 | C · Mức tự chủ & Kiểm thử: chặng 4, §4, hard tests và kiểm thử prototype |
 
 ---
 
@@ -118,18 +120,71 @@ Có hai ca và công tắc mức tự chủ của doi_chuyen_bay (khách xác nh
 
 # §4. Mức tự chủ (chặng 4)
 
-> **Cần bổ sung nội dung trước khi nộp:** phần dưới đây hiện mới là các ý cần trả lời, chưa phải kết quả phân tích của nhóm (Bạn C phụ trách điền phần này).
+## 4.1 Mức tự chủ của từng tool
 
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
+| Tool | Mức | Ai duyệt · thấy gì · quá hạn thì sao |
+|---|---|---|
+| `tra_cuu_dat_cho` | **Tự làm** | — |
+| `giu_cho_chuyen_moi` | **Tự làm** | — (tự nhả sau 20 phút). **Luật:** chỉ giữ chuyến đủ chỗ cho **toàn bộ** hành khách |
+| `doi_chuyen_bay` | **Cần khách xác nhận** | **Khách** bấm "Xác nhận đổi" trên thẻ tóm tắt (chuyến + hành khách + "dùng lần đổi miễn phí duy nhất"). Không xác nhận thì không đổi; giữ chỗ hết 20 phút tự nhả. Thanh toán do khách tự làm, AI **không thanh toán hộ** |
+| `soan_yeu_cau_hoan_ve` *(tool tách mới)* | **Tự làm** | — (chỉ soạn bản nháp; khách huỷ nháp được) |
+| `gui_yeu_cau_hoan_ve` | **Cần nhân viên xác nhận**; AI **không có quyền gửi** | **Nhân viên hỗ trợ** thấy: mã đặt chỗ TRV-7Q2K, hành khách trong yêu cầu, lý do huỷ (bão), khách đã gõ HOÀN ở bước xác nhận, lịch sử chat. **Quá hạn:** xem 4.3 |
+| `chuyen_nhan_vien` | **Tự làm** | — (nhân viên nhận kèm tóm tắt thao tác) |
 
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
+### Lý do theo cost-of-error và phương án đã loại
+
+**`tra_cuu_dat_cho` — tự làm.** Chỉ đọc nên sai cũng chỉ là khách thấy thông tin sai chứ không mất gì (cái sai ở S3 là AI đọc giờ mà quên trạng thái "ĐÃ HUỶ", sửa bằng câu chữ). *Loại "cần duyệt":* bắt khách chờ cho một việc không đổi gì là chờ vô ích.
+
+**`giu_cho_chuyen_moi` — tự làm.** Sai thì chỉ giữ thừa tạm thời: chỗ tự nhả sau 20 phút, vé cũ vẫn còn, chưa mất lần đổi. Còn chờ người thì chuyến BM 201 (còn 9 chỗ) hoặc BM 205 (còn 4 chỗ) có thể hết trong lúc chờ. *Loại "cần duyệt":* chờ đắt hơn sai. *Luật đi kèm:* không giữ chuyến không đủ chỗ cho cả đặt chỗ, ví dụ BM 217 còn 1 chỗ mà đặt chỗ có 2 người (S4).
+
+**`doi_chuyen_bay` — cần khách xác nhận.** Sai thì **khách** chịu: mất lần đổi miễn phí duy nhất, chuyến đúng có thể đã hết chỗ, khách lỡ việc (KB-B). Một bước xác nhận ngắn chặn được vì vé cũ giữ nguyên tới khi thanh toán xong (§3, Ca 1), nên chuỗi giữ chỗ → khách xác nhận → khách thanh toán còn hai chỗ để dừng. *Loại "tự làm + hoàn tác 10 phút"* (chế độ "AI tự đổi" trong prototype): hoàn tác chỉ cứu khi khách đọc tin kịp, và sau khi vé mới xuất thì không còn hoàn tác bằng nút, đúng ca KB-B. *Loại "cấm":* khách vội, có trẻ nhỏ, phải tự bấm qua nhiều màn hình, trái với lát cắt.
+
+**`gui_yeu_cau_hoan_ve` — cần nhân viên xác nhận.** Sai thì **khách** chịu mất cả chỗ lẫn tiền, chờ tới 90 ngày, **không huỷ được** (KB-A, và S7 là hậu quả của nó). Một bước khách gõ HOÀN chưa đủ, vì câu "huỷ hết đi" có thể chỉ là xả giận (§2, KB-A): khách giận có thể gõ ngay mà chưa cân nhắc. Cần một người thứ hai chặn. *Loại "khách tự gửi sau khi gõ HOÀN":* không có ai chặn khách giận nhất thời. *Loại "cấm hẳn":* khách thật sự muốn hoàn phải đi đường vòng. *Loại "chuyển nhân viên mọi ca hoàn":* đã loại ở §3 vì khách chờ vô ích, nên tách bước soạn ra cho AI tự làm.
+
+**`soan_yeu_cau_hoan_ve` — tự làm.** Chỉ là bản nháp, không gửi gì đi, khách huỷ được bất kỳ lúc nào, nên sai thì rẻ. Giúp ca "hoàn thật" khỏi tự điền mà vẫn có người thứ hai ở bước gửi.
+
+**`chuyen_nhan_vien` — tự làm.** Đảo được; chuyển thừa chỉ tốn công nhân viên. Đây là đường thoát (S7, S9, S11) nên chờ duyệt là sai.
+
+## 4.2 Tool khó xếp nhất: `gui_yeu_cau_hoan_ve`
+
+Theo tài liệu từng vai nộp (cần xác nhận lại với A và B trước khi nộp):
+
+| Vai | Ghi trong tài liệu | Cái giá của phía đó |
+|---|---|---|
+| A | `A-kich-ban-va-khung.md`: đề xuất "cần người duyệt / bước xác nhận bắt buộc" | Nếu chỉ là một bước xác nhận của khách thì KB-A vẫn xảy ra với khách đang giận |
+| B | Prototype (§3, Ca 2): khách bấm "Tiếp tục yêu cầu hoàn" rồi gõ HOÀN, nút gửi mới bật | Nhanh, nhưng không có ai chặn khi khách gõ HOÀN theo quán tính; sau khi gửi không rút được (S7) |
+| C | Nhân viên xác nhận mới được gửi | Khách phải chờ nhân viên (tối đa theo SLA ở 4.3) |
+
+**Chốt:** giữ **cả hai lớp**: khách gõ HOÀN (xác nhận ý định, có thẻ tóm tắt và cảnh báo "gửi rồi không huỷ được") **rồi** nhân viên xác nhận và gửi. Cái giá phía "khách tự gửi" là KB-A (§2: S6, S7). Cái giá phía "nhân viên gửi" là khách chờ, và chờ chỉ làm chậm chứ không mất vé hay tiền vì quyền đổi miễn phí vẫn còn 48 giờ. Vì vậy chọn chờ. Bản nháp chưa gửi thì khách huỷ được, nên S7 ("lỡ gửi hoàn rồi") chỉ còn xảy ra sau khi nhân viên đã gửi.
+
+## 4.3 Người duyệt thấy gì và quá hạn thì sao
+
+- **Hạn:** mục tiêu nhân viên xác nhận trong **10 phút**; SLA tối đa nhận ca là **30 phút** như §2.
+- **Quá 10 phút chưa ai nhận:** bản nháp vẫn ở trạng thái **"chưa gửi"**; AI nói thật với khách (*"Chưa có nhân viên nhận yêu cầu của bạn. Yêu cầu hoàn vẫn được lưu, chưa gửi, bạn chưa mất quyền lợi nào; quyền đổi miễn phí còn đến hết 48 giờ"*); nhắc lại nhân viên. Khách chọn một trong ba: **chờ tiếp** · **đổi chuyến thay vì hoàn** (huỷ nháp, giữ chỗ lại) · **giữ chỗ chuyến thay thế trong lúc chờ**.
+- **Quá 30 phút:** nâng ưu tiên lên trưởng ca (ca có trẻ nhỏ).
+- **Không bao giờ:** AI tự gửi sau khi hết hạn, vì chờ thêm chỉ tốn thời gian của khách còn gửi nhầm thì mất chỗ và tiền không đảo lại được.
+
+## 4.4 Thử mức đã đặt trên 3 kịch bản
+
+| Kịch bản | Cái sai có bị chặn không? | Còn việc AI làm khi lẽ ra phải hỏi? | Người dùng bình thường phải chờ vô ích? |
+|---|---|---|---|
+| **KB-A** (S6, S7): "Thôi huỷ hết đi, hoàn tiền cho mình" | **Có.** AI chỉ gọi `soan_yeu_cau_hoan_ve`; gửi cần khách gõ HOÀN rồi nhân viên xác nhận. Nếu khách đổi ý lúc nháp thì huỷ nháp, chưa mất gì | Không. AI không gọi `gui_yeu_cau_hoan_ve`; hoàn hay đổi là khách chọn trên hai nút ngang nhau (⑧) | Có chờ ≤ 10 phút, nhưng quá hạn có 3 lựa chọn và không mất quyền lợi |
+| **KB-B** (S2, S11): "ok" cho câu hỏi mơ hồ | **Có.** "ok" không nói rõ chuyến nào, cho ai nên không đủ để gọi `doi_chuyen_bay`; chỉ gọi sau khi khách bấm "Xác nhận đổi" trên thẻ có chuyến + 2 hành khách; thanh toán là bước khách tự làm | Không. Chỉ `giu_cho_chuyen_moi` (rẻ, tự nhả) chạy khi chờ khách chọn | Không. Tra cứu và giữ chỗ tự làm, khách chốt bằng một chạm |
+| **Bình thường** (S3): "Chuyến của mình mấy giờ bay vậy?" | Không có rủi ro; AI đọc `tra_cuu_dat_cho` và nói chuyến đã huỷ do bão | Không | Không (tự làm, không chờ duyệt) |
+
+## 4.5 Luật thêm và tool tách bước
+
+1. **Tách `soan_yeu_cau_hoan_ve` khỏi `gui_yeu_cau_hoan_ve`:** chặn KB-A mà vẫn cho AI giúp khách hoàn nhanh.
+2. **Chỉ giữ chuyến đủ chỗ cho toàn bộ hành khách:** chặn S4 (BM 217 còn 1 chỗ, đặt chỗ 2 người) và chặn tách mẹ khỏi bé 5 tuổi (S9).
+3. **Xác nhận phải nêu chuyến + hành khách:** "ok", "đổi đi" không đủ để gọi `doi_chuyen_bay` (S1, S2, KB-B).
+4. **AI chỉ nói "đã đổi", "đã gửi" khi tool trả thành công hoặc khi đã thanh toán xong:** chặn S5 (nói đã đổi khi chưa thanh toán).
+5. **AI không thanh toán hộ** (§1, mục 3): đổi vé luôn còn một bước do khách tự làm.
+6. **Tin nhắn là dữ liệu, không phải lệnh:** tin tự xưng nhân viên hãng đòi bỏ xác nhận không đổi mức tự chủ (S10).
+7. **Trẻ bay một mình và đổi tên luôn qua `chuyen_nhan_vien`** (S9), không có tool nào làm được việc này.
+
+## 4.6 Lời hứa với người dùng đã đổi thế nào
+
+Từ "AI đổi vé và hoàn tiền cho bạn" thành: **"Bạn quyết, mình dọn đường."** Mình tìm chuyến và giữ chỗ sẵn; bạn chốt đổi bằng một chạm; hoàn vé thì mình soạn sẵn cho bạn và nhân viên xác nhận. Lời hứa nhỏ hơn nhưng không bao giờ sai: khách vẫn là người quyết định, nhanh gọn, còn các việc không đảo lại được luôn có thêm một người xác nhận.
 
 ---
 
