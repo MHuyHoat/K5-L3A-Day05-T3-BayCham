@@ -1,7 +1,6 @@
 # Dàn ý bài nộp *(spec.md — nộp trước 23:59 ngày lab của lớp)*
 
 
-```markdown
 # Bài nộp LAB5 — [Track] · Nhóm [tên]
 [Danh sách thành viên và việc mỗi người làm — copy bảng từ README]
 | Họ và Tên | Mã Học Viên | Việc đã làm |
