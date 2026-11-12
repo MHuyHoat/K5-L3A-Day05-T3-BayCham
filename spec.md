@@ -1,5 +1,5 @@
 
-# Bài nộp LAB5 — Track T3 · Nhóm [Tên nhóm]
+# Bài nộp LAB5 — Track T3 · Nhóm Bay Chậm
 
 ## Danh sách thành viên và việc mỗi người làm
 
