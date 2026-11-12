@@ -152,25 +152,8 @@ Trong *Đặt chỗ của tôi*, khách vừa nhận tin chuyến huỷ, nhắn 
 # Repo & kịch bản demo
 
 ## Cấu trúc repo
-lab5-t3/
-├── README.md
-├── spec.md
-├── fixtures/
-│   ├── booking-TRV-7Q2K.json
-│   ├── flights.json
-│   └── policy-bay-mau.md
-├── prototype/
-│   ├── index.html
-│   ├── screens/
-│   │   ├── 01-banner-huy.png
-│   │   ├── 02-chat-mo-ho.png
-│   │   ├── 03-the-xac-nhan.png
-│   │   ├── 04-hau-doi-nham.png
-│   │   └── 05-hoan-ve-canh-bao.png
-│   └── assets/
-└── demo/
-    ├── demo-script.md
-    └── ca-la-playbook.md
+<img width="729" height="446" alt="image" src="https://github.com/user-attachments/assets/3808f25f-dad3-4fb1-9bf2-66455cafa3b6" />
+
 
 
 ## Kịch bản demo (ca chọn: **trợ lý vừa đổi nhầm** — KB-B)
