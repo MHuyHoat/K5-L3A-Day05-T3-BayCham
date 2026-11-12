@@ -133,9 +133,32 @@ Thêm:
 - Một mức tự chủ đã đổi lời hứa nào với người dùng.
 
 ## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
+Link hoặc file: prototype/index.html (một file HTML, mở bằng trình duyệt, không cần cài đặt hay mạng).
+Công cụ: HTML, CSS và JavaScript thuần
+Phần nào mock: toàn bộ. Không có AI thật: câu hỏi lại, lựa chọn chuyến và luồng xác nhận là kịch bản lập trình sẵn. Dữ liệu là dữ liệu dựng của track T3 (đặt chỗ TRV-7Q2K, BM 213 huỷ do bão, BM 201 và BM 205). Thanh toán là nút mô phỏng. Không gửi dữ liệu đi đâu.
+Có lời gọi AI thật không: Không.
+
+Ảnh có đánh số: prototype/anh-1.png (ca 1, mức “Khách xác nhận”, hỏi lại và giữ chỗ) và prototype/anh-2.png (ca 2, cảnh báo và xác nhận lần hai). Chụp khi đã bật “Hiện số ghi chú”.
+
+Số	Thể hiện gì	Nguyên tắc HAX/PAIR	Mức tự chủ
+①	AI nói rõ “mình chưa chắc: sáng mai có hai chuyến còn chỗ”	HAX: làm rõ AI làm tốt tới đâu	Hỏi lại trước khi đổi
+②	Nguồn “Theo tra_cuu_dat_cho · đặt chỗ TRV-7Q2K”	PAIR: giải thích để khách kiểm được	Tra cứu tự làm
+③	Hai thẻ chuyến có giờ và số chỗ, ô chọn hành khách	HAX: thu hẹp khi input mơ hồ	Khách chọn, AI không tự chọn
+④	Dòng “Giữ chỗ 20 phút” và cảnh báo “Gửi rồi không huỷ được”	HAX: cảnh báo trước việc không đảo được	Giữ chỗ tự làm (tự nhả); hoàn vé cần xác nhận lần hai
+⑤	Bước “Xác nhận đổi” và ô gõ HOÀN; trạng thái “chờ thanh toán”	PAIR: để người dùng kiểm soát	doi_chuyen_bay cần khách xác nhận
+⑥	Nút “Gặp nhân viên”, kèm tóm tắt thao tác	PAIR: lỗi và đường thoát	Chuyển người tự làm
+⑦	Đếm ngược hoàn tác 10 phút (chỉ ở mức AI tự đổi)	PAIR: phản hồi và điều khiển	AI tự đổi, khách hoàn tác có hạn
+⑧	Nút “Đổi sang chuyến còn chỗ” ngang nút “Tiếp tục yêu cầu hoàn”	HAX: sửa hiệu quả, không chỉ từ chối	Khách tự chọn đường đổi
+
+Quyết định về cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ:
+
+Độ chắc và bằng chứng: chọn cách nói thành câu tự nhiên (“mình chưa chắc vì…”) kèm nguồn ngay bên dưới, thay vì con số phần trăm. Lý do: khách đang vội và có trẻ nhỏ, một con số % không cho họ biết nên làm gì, còn nguồn cho họ thấy AI dựa vào đâu để kiểm tra được.
+Điều khiển mức tự chủ: chọn công tắc hai mức ngay trên ca 1 (“Khách xác nhận” / “AI tự đổi + hoàn tác”) thay vì một cài đặt ẩn. Lý do: người xem thấy được cùng một ca đổi khác nhau thế nào khi mức thay đổi, và đó chính là bằng chứng cho lựa chọn mức.
+Cách khác đã cân nhắc:
+Dùng thanh “độ tin cậy” phần trăm: loại, vì số không hành động được và dễ gây tin tưởng sai.
+Chỉ có một mức cố định: loại, vì không so sánh được cái giá của từng mức.
+Hoàn tác vô hạn thời gian: loại, vì sau khi vé mới xuất thì hoàn tác bằng nút không còn đúng thực tế; giới hạn 10 phút phản ánh điều đó.
+Điểm còn hạn chế: cách này không cho khách biết AI chắc tới mức nào, chỉ cho biết chỗ AI không chắc. Đây là đánh đổi đã chấp nhận vì mục tiêu của ca này là ngăn đổi nhầm, không phải đo độ tin cậy.
 
 # §6. Tốt là gì — 3 tiêu chí Pass/Fail
 
