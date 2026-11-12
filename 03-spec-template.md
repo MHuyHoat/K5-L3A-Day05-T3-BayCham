@@ -7,7 +7,11 @@
 ```markdown
 # Bài nộp LAB5 — [Track] · Nhóm [tên]
 [Danh sách thành viên và việc mỗi người làm — copy bảng từ README]
-
+| Họ và Tên | Mã Học Viên | Việc đã làm |
+|---|---|---|
+| | | A · Kịch bản & khung: chặng 1–2, bảng kịch bản, §1, §2, §6, repo và kịch bản demo |
+| | | B · UX khi AI sai & Prototype: chặng 3, 5, §3, prototype/ và demo màn hình |
+| | | C · Mức tự chủ & Kiểm thử: chặng 4, §4, hard tests và kiểm thử prototype |
 ## §1. Lát cắt & phạm vi
 - Lát cắt (chép từ track).
 - 3 việc tính năng KHÔNG làm, mỗi việc một câu vì sao.
