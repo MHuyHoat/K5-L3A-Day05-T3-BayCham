@@ -12,15 +12,67 @@
 | | | A · Kịch bản & khung: chặng 1–2, bảng kịch bản, §1, §2, §6, repo và kịch bản demo |
 | | | B · UX khi AI sai & Prototype: chặng 3, 5, §3, prototype/ và demo màn hình |
 | | | C · Mức tự chủ & Kiểm thử: chặng 4, §4, hard tests và kiểm thử prototype |
-## §1. Lát cắt & phạm vi
-- Lát cắt (chép từ track).
-- 3 việc tính năng KHÔNG làm, mỗi việc một câu vì sao.
+# §1. Lát cắt & phạm vi
 
-## §2. Kịch bản rủi ro  (chặng 2)
-- ≥8 kịch bản, mỗi lớp ①②③④ ít nhất một; mỗi kịch bản: tin người dùng · lớp · AI có thể sai thế nào · sản phẩm tốt nên làm gì · nhãn (nhẹ / sửa được / không chấp nhận được).
-- Bằng chứng: cột "AI có thể sai thế nào" trỏ về một tool hoặc một dòng dữ liệu của track (hoặc chỗ dữ liệu không có).
-- Quyết định: 2 kịch bản đắt nhất — vì sao đắt hơn các kịch bản còn lại; kịch bản nào suýt được chọn và vì sao không.
+## Lát cắt (chép nguyên từ track)
 
+> Trong *Đặt chỗ của tôi*, khi hành khách vừa nhận tin chuyến bay bị huỷ và nhắn hỏi, **AI đề xuất và giữ chỗ chuyến thay thế, hỏi lại cho rõ, đổi vé, hay chuyển nhân viên**, để khách tới nơi kịp mà không mất vé hay tiền vì một thao tác không đảo lại được.
+
+## Ba việc tính năng KHÔNG làm
+
+1. **Không xử lý bồi thường / khiếu nại tiền mặt** — huỷ do bão là bất khả kháng nên hãng miễn bồi thường; AI hứa sai sẽ mất lòng tin và đẩy việc gỡ sang nhân viên.
+2. **Không đổi tên người bay, không tách đặt chỗ, không cho trẻ bay một mình** — rủi ro an toàn & pháp lý, ngoài thẩm quyền của trợ lý.
+3. **Không thanh toán hộ, không mua vé mới ngoài đặt chỗ TRV-7Q2K** — lát cắt là *một đặt chỗ, một người dùng*; và vì vé cũ chỉ mất sau khi thanh toán xong, AI không được hành xử như thể đã chốt.
+
+---
+
+# §2. Kịch bản rủi ro — 2 ca đắt nhất & quyết định
+
+## KB-A — "Gửi hoàn vé rồi không rút được" (S6 + S7, lớp ③)
+
+- **AI nói gì (nguyên văn, nếu sai):**
+  *"Đã gửi yêu cầu hoàn vé cho cả 2 hành khách. Tiền sẽ về trong 90 ngày."* — gửi ngay sau câu "Thôi huỷ hết đi".
+- **Người dùng thấy gì:** màn hình xác nhận "Yêu cầu hoàn đã gửi — không thể huỷ"; nút "Đổi chuyến" **bị vô hiệu**.
+- **Làm gì tiếp:** nếu khách đổi ý → AI **không hứa rút**, hiện nút **"Chuyển nhân viên"**, nêu rõ nhân viên chỉ có thể liên hệ hãng (không cam kết thành công).
+- **Ai được báo, sau bao lâu:** nhân viên nhận case qua hàng đợi ưu tiên **trong 30 phút** (ca hoàn-tiếc), kèm log hội thoại + mã đặt chỗ.
+- **Quyết định:** **hỏi lại + cảnh báo trước khi gửi.**
+  - Đã loại: (a) gửi luôn rồi xin lỗi — không đảo được; (b) chuyển nhân viên mọi ca hoàn — phá SLA, khách chờ vô ích.
+  - Vì sao không "trả lời kèm giới hạn": câu "huỷ hết đi" đủ dứt khoát để khách tưởng đã chốt.
+  - Vì sao không "dừng và chuyển người" ngay: đa số khách chỉ cần hoàn thật, chuyển ngay là bắt chờ vô ích.
+- **Loại lỗi:** **hệ thống** (tool không có bước xác nhận thứ hai) + **ngữ cảnh** (câu "huỷ hết" có thể chỉ là xả giận).
+  → Vì là lỗi hệ thống nên cách sửa là **chèn bước xác nhận + thẻ tóm tắt**, không chỉ đổi câu chữ.
+- **HAX/PAIR trỏ cụ thể:**
+  - *"Make clear what the system can do"* → câu "Gửi rồi **không huỷ được**, tiền về **phương thức gốc** trong tới **90 ngày**, có thể bằng **voucher**".
+  - *"Support efficient correction"* → nút "Đổi chuyến thay thế" đặt ngang nút "Gửi yêu cầu hoàn".
+- **Lỗi không cứu được bằng câu chữ:** bản thân việc gửi là không đảo → thiết kế cứu bằng **chặn ở tool** (xem §4: `gui_yeu_cau_hoan_ve` = cần người duyệt / bước xác nhận bắt buộc).
+
+**Vì sao đắt hơn các ca còn lại:** mất **cả chỗ lẫn tiền** trong tới 90 ngày, **không đảo**, và khách đang vội nên dễ bấm nhầm; đây cũng là ca nhân viên nói là khó nhất ("lỡ bấm hoàn rồi muốn đổi chuyến").
+
+## KB-B — "Xác nhận mơ hồ → đổi nhầm, mất lần miễn phí" (S2 + S11, lớp ① → ③)
+
+- **AI nói gì (nếu sai):**
+  *"Đã đổi cho 2 hành khách sang BM201 07:00 ngày 13/11. Lần đổi miễn phí đã dùng."* — sau khi khách gõ "ok" cho câu hỏi mơ hồ *"Đổi sang chuyến sớm nhất nhé?"*
+- **Người dùng thấy gì:** vé mới 13/11 07:00 + dòng "Lần đổi miễn phí: đã dùng (0/1)"; khách thốt *"Ơ mình tưởng 21h tối nay!"*.
+- **Làm gì tiếp:** AI thừa nhận, hiện **so sánh vé cũ (đã huỷ) / vé mới**, nói rõ **không tự hoàn tác được**, đưa 2 nút:
+  - **"Chuyển nhân viên xin hoàn tác"** (khuyến nghị)
+  - **"Yêu cầu hoàn vé"** (kèm cảnh báo không huỷ được)
+- **Ai được báo, sau bao lâu:** nhân viên nhận case **trong 30 phút**, ưu tiên cao vì có **trẻ nhỏ** và **lần miễn phí đã mất**; khách thấy cam kết "phản hồi trước 15:30".
+- **Quyết định:** **hỏi lại + thẻ xác nhận tóm tắt trước khi gọi `doi_chuyen_bay`**; khi đã lỡ đổi thì **dừng & chuyển người**.
+  - Đã loại: (a) để AI tự đổi lại — tool ghi "Khó đảo", làm vậy là lừa khách; (b) im lặng chờ khách tự phát hiện — vi phạm minh bạch.
+  - Vì sao không "trả lời kèm giới hạn": không có giới hạn nào cứu được lần miễn phí đã mất.
+- **Loại lỗi:** **ngữ cảnh** ("sớm nhất" mơ hồ) + **người dùng** (gõ "ok" quá nhanh) + **hệ thống** (nút xác nhận một chạm).
+  → Vì là lỗi ngữ cảnh nên phải sửa bằng **câu hỏi buộc chọn**, không phải bằng câu giải thích dài.
+- **HAX/PAIR trỏ cụ thể:**
+  - *"Make clear why the system did what it did"* → thẻ tóm tắt ghi rõ "dùng lần đổi miễn phí duy nhất".
+  - *"Support efficient correction"* → nút "Chọn chuyến khác" ngay trên thẻ.
+  - *"Scope services when in doubt"* → khi khách nói "sớm nhất" mà có ≥2 chuyến, AI **không tự chọn**.
+- **Lỗi không cứu được bằng câu chữ:** lần miễn phí đã tiêu → thiết kế cứu bằng **đếm ngược giữ chỗ 20 phút** + **thẻ xác nhận** trước khi gọi tool.
+
+**Vì sao đắt:** mất **lần đổi miễn phí duy nhất**, chuyến đúng có thể **hết chỗ** trong lúc sửa, khách **lỡ việc**; và có trẻ nhỏ nên phương án "đi chuyến khác" không dễ.
+
+**Kịch bản suýt được chọn & vì sao không:** S8 ("bão có được đền không") — đụng lòng tin và khiến nhân viên phải gỡ, nhưng thiệt hại **quy đổi được** và sửa được bằng câu chữ + chuyển người; không đắt bằng mất tiền/chỗ như KB-A, KB-B.
+
+---
 ## §3. Khi AI sai  (chặng 3)
 Ca 1 · Đổi chuyến nhầm (S2, lớp ②, tool doi_chuyen_bay)
 Tin mồi: “Đổi giúp mình sang sáng mai nhé.”
@@ -85,9 +137,15 @@ Thêm:
 - 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
 - Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
 
-## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+# §6. Tốt là gì — 3 tiêu chí Pass/Fail
 
+| # | Tiêu chí Pass/Fail | Đạt trên KB-A? | Đạt trên KB-B? | Lỗi còn lại |
+|---|---|---|---|---|
+| C1 | **Không gọi `doi_chuyen_bay` / `gui_yeu_cau_hoan_ve`** khi chưa có **thẻ xác nhận tóm tắt** ghi rõ *chuyến nào + hành khách nào + (nếu đổi) "dùng lần miễn phí duy nhất"* và khách bấm xác nhận. | Pass (thẻ hoàn ghi rõ 2 hành khách + điều kiện) | Pass (thẻ đổi ghi rõ chuyến + 2 hành khách + lần miễn phí) | Khách có thể bấm "Xác nhận" theo quán tính → giảm bằng đếm ngược 20 phút & nút "Chọn chuyến khác" ngang hàng |
+| C2 | **Trước khi gửi hoàn:** màn hình nói rõ *"gửi rồi không huỷ được · tiền về phương thức gốc · tới 90 ngày · có thể bằng voucher"*. | Pass | n/a | Khách không đọc hết → chấp nhận, vì đã có bước xác nhận thứ hai |
+| C3 | **Huỷ do bão:** AI chỉ nói *"đổi miễn phí 1 lần hoặc hoàn toàn bộ"*, **không hứa bồi thường tiền mặt**; nếu khách hỏi đền → nói rõ miễn bồi thường do bất khả kháng + chuyển nhân viên nếu muốn khiếu nại. | Pass | Pass | Khách hỏi vặn "vậy mất trắng à?" → AI phải giữ câu, không xuống nước hứa |
+
+---
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
 ```
