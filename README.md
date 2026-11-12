@@ -10,7 +10,7 @@ Bài nộp cần **danh sách thành viên** và **mỗi người làm gì**. Nh
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-|  |  |  |
+|Mai Huy Hoạt  | 2A202603656 |Làm kịch bản và Khung  |
 |  |  |  |
 |  |  |  |
 
