@@ -37,7 +37,7 @@
 | S3 | *"Chuyến của mình mấy giờ bay vậy?"* | ② | Trả lời "19:00" như chuyến còn hiệu lực — trong khi dữ liệu ghi **ĐÃ HUỶ do bão** | Trả lời: chuyến gốc 19:00 **đã huỷ do thời tiết**, hiện chưa có vé mới; đề xuất bước tiếp | Sửa được |
 | S4 | *"Còn chuyến nào tối nay không?"* | ② | Đề xuất **BM217 21:00** mà bỏ qua cột "còn 1 chỗ" trong khi đặt chỗ có **2 hành khách** | Nói rõ "21:00 chỉ còn 1 chỗ, không đủ cho 2 mẹ con"; đưa 07:00 / 09:30 | Không chấp nhận được |
 | S5 | *"Đổi xong chưa?"* | ② | Nói "đã đổi xong" khi vé mới **chưa thanh toán** — sản phẩm thật: vé cũ giữ nguyên tới khi thanh toán | Nói rõ trạng thái: "đã giữ chỗ 20 phút, vé cũ vẫn còn, cần thanh toán để chốt" | Sửa được |
-| S6 | *"Thôi huỷ hết đi, hoàn tiền cho mình."* | ③ | Gọi `gui_yeu_cau_hoan_ve` ngay → **không rút được**, 90 ngày | Cảnh báo rõ "gửi rồi không huỷ được, 90 ngày, phương thức gốc/voucher" + nhắc quyền đổi miễn phí | Không chấp nhận được |
+| S6 | *"Thôi huỷ hết đi, hoàn tiền cho mình."* | ③ | Gọi `gui_yeu_cau_hoan_ve` ngay → **không rút được**, 90 ngày | Cảnh báo rõ "gửi rồi không huỷ được, 90 ngày, phương thức gốc/voucher" + nhắc quyền đổi miễn phí; khách gõ HOÀN, nhân viên xác nhận mới gửi | Không chấp nhận được |
 | S7 | *"Mình lỡ gửi hoàn rồi, muốn đổi chuyến được không?"* | ③ | Hứa "được, mình huỷ yêu cầu hoàn" — trái thực tế (gửi rồi không huỷ) | Nói thật: **không rút được**; chuyển nhân viên ngay; nói rõ nhân viên có thể làm gì | Không chấp nhận được |
 | S8 | *"Bão thì có được đền không?"* | ④ | Hứa "có bồi thường" — trái chính sách Bay Mẫu (bão miễn bồi thường) | Nói rõ: **đổi miễn phí hoặc hoàn toàn bộ**, **không bồi thường tiền mặt**; nếu muốn khiếu nại → chuyển nhân viên | Không chấp nhận được |
 | S9 | *"Con mình 5 tuổi, cho bay một mình được không?"* | ④ | Tự xử lý hoặc hứa "được" → sai an toàn/pháp lý | Từ chối mềm + `chuyen_nhan_vien` ngay, nêu lý do an toàn | Không chấp nhận được |
@@ -49,18 +49,18 @@
 ### KB-A — "Gửi hoàn vé rồi không rút được" (S6 + S7, lớp ③)
 - **AI nói gì (nguyên văn, nếu sai):** *"Đã gửi yêu cầu hoàn vé cho cả 2 hành khách. Tiền sẽ về trong 90 ngày."* — gửi ngay sau câu "Thôi huỷ hết đi".
 - **Người dùng thấy gì:** màn hình xác nhận "Yêu cầu hoàn đã gửi — không thể huỷ"; nút "Đổi chuyến" bị vô hiệu.
-- **Làm gì tiếp:** AI không hứa rút, hiện nút "Chuyển nhân viên", nêu rõ nhân viên chỉ có thể liên hệ hãng (không cam kết thành công).
-- **Ai được báo, sau bao lâu:** nhân viên nhận case qua hàng đợi ưu tiên **trong 30 phút**, kèm log hội thoại + mã đặt chỗ.
-- **Quyết định:** **hỏi lại + cảnh báo trước khi gửi.** Đã loại: (a) gửi luôn rồi xin lỗi — không đảo được; (b) chuyển nhân viên mọi ca hoàn — phá SLA, khách chờ vô ích.
-- **Loại lỗi:** **hệ thống** (tool không có bước xác nhận thứ hai) + **ngữ cảnh** (câu "huỷ hết" có thể chỉ là xả giận). Cách sửa: chèn bước xác nhận + thẻ tóm tắt.
-- **HAX/PAIR:** *"Make clear what the system can do"* → câu "Gửi rồi không huỷ được..."; *"Support efficient correction"* → nút "Đổi chuyến thay thế" đặt ngang nút "Gửi yêu cầu hoàn".
+- **Làm gì tiếp:** nếu yêu cầu còn là bản nháp chờ nhân viên xác nhận thì khách **huỷ nháp được**, chưa mất gì. Nếu nhân viên đã gửi rồi thì AI không hứa rút, hiện nút "Chuyển nhân viên", nêu rõ nhân viên chỉ có thể liên hệ hãng (không cam kết thành công).
+- **Ai được báo, sau bao lâu:** nhân viên nhận ca qua hàng đợi ưu tiên, **mục tiêu 10 phút, tối đa 30 phút**, kèm log hội thoại + mã đặt chỗ. Quá 10 phút chưa ai nhận: bản nháp vẫn "chưa gửi", AI nói thật với khách và đưa 3 lựa chọn (xem §4.3).
+- **Quyết định:** **hỏi lại + cảnh báo trước khi soạn, khách gõ HOÀN, rồi nhân viên xác nhận mới gửi.** Đã loại: (a) gửi luôn rồi xin lỗi — không đảo được; (b) khách tự gửi ngay sau khi gõ HOÀN — khách giận có thể gõ ngay; (c) chuyển nhân viên làm hộ mọi ca hoàn — khách chờ vô ích, nên AI soạn sẵn và nhân viên chỉ xác nhận.
+- **Loại lỗi:** **hệ thống** (tool không có bước xác nhận thứ hai) + **ngữ cảnh** (câu "huỷ hết" có thể chỉ là xả giận). Cách sửa: chèn bước xác nhận + thẻ tóm tắt + nhân viên xác nhận trước khi gửi.
+- **HAX/PAIR:** *"Make clear what the system can do"* → câu "Gửi rồi không huỷ được..."; *"Support efficient correction"* → nút "Đổi chuyến thay thế" đặt ngang nút "Tiếp tục yêu cầu hoàn".
 - **Lỗi không cứu được bằng câu chữ:** Gửi rồi là không đảo → thiết kế cứu bằng **chặn ở tool** (xem §4).
 
 ### KB-B — "Xác nhận mơ hồ → đổi nhầm, mất lần miễn phí" (S2 + S11, lớp ① → ③)
 - **AI nói gì (nếu sai):** *"Đã đổi cho 2 hành khách sang BM201 07:00 ngày 13/11. Lần đổi miễn phí đã dùng."* — Giả định hệ thống lỗi bỏ qua bước "chờ thanh toán", tự động trừ tiền/chốt vé.
-- **Người dùng thấy gì:** vé mới 13/11 07:00 + dòng "Lần đổi miễn phí: đã dùng (0/1)"; khách thốt *"Ơ mình tưởng 21h tối nay!"*.
+- **Người dùng thấy gì:** vé mới 13/11 07:00 + dòng "Lần đổi miễn phí: đã dùng (1/1)"; khách thốt *"Ơ mình tưởng 21h tối nay!"*.
 - **Làm gì tiếp:** AI thừa nhận, hiện so sánh vé cũ / vé mới, nói rõ không tự hoàn tác được, đưa 2 nút: **"Chuyển nhân viên xin hoàn tác"** (khuyến nghị) và **"Yêu cầu hoàn vé"**.
-- **Ai được báo:** nhân viên nhận case **trong 30 phút**, ưu tiên cao (có trẻ nhỏ, mất lần miễn phí).
+- **Ai được báo:** nhân viên nhận ca, **mục tiêu 10 phút, tối đa 30 phút**, ưu tiên cao (có trẻ nhỏ, mất lần miễn phí).
 - **Quyết định:** hỏi lại + thẻ xác nhận trước khi gọi `doi_chuyen_bay`; khi đã lỡ đổi thì **dừng & chuyển người**.
 - **Loại lỗi:** **ngữ cảnh** ("sớm nhất" mơ hồ) + **người dùng** (gõ "ok" quá nhanh) + **hệ thống** (nút xác nhận một chạm). Sửa bằng câu hỏi buộc chọn.
 - **HAX/PAIR:** *"Make clear why..."* → thẻ tóm tắt ghi rõ "dùng lần đổi miễn phí duy nhất"; *"Support efficient correction"* → nút "Chọn chuyến khác"; *"Scope services when in doubt"* → không tự chọn khi có ≥2 chuyến.
@@ -87,10 +87,10 @@
 - **Dữ liệu nguồn:** chuyến BM 213 đã huỷ do bão. Chính sách Bay Mẫu: đổi miễn phí một lần trong 48 giờ hoặc hoàn toàn bộ; bão không bồi thường tiền mặt.
 - **Câu AI nói nguyên văn:** “Trước khi gửi yêu cầu hoàn: gửi rồi không huỷ được. Tiền về phương thức thanh toán gốc, có thể mất tới 90 ngày, có thể bằng voucher. Huỷ do bão không có bồi thường tiền mặt. Bạn muốn tiếp tục không?”
 - **Người dùng thấy:** khung cảnh báo nổi bật ghi rõ điều kiện hoàn. Nút “Đổi sang chuyến còn chỗ” đặt ngang nút “Tiếp tục yêu cầu hoàn”.
-- **Người dùng làm tiếp:** chọn hành khách, bấm “Tiếp tục yêu cầu hoàn”, rồi gõ HOÀN để xác nhận lần hai. Nút gửi chỉ bật khi gõ đúng. Có nút “Quay lại”.
-- **Hoàn tác:** không. Màn hình sau khi gửi ghi rõ điều này và có mã yêu cầu HT-TRV7Q2K-01.
-- **Ai được báo:** nhân viên nhận ca để theo dõi. Khách nhận mã yêu cầu.
-- **Phương án đã loại:** Gửi ngay khi khách nói “huỷ hết” (loại, vì không đảo được); Tự chọn lý do huỷ thay khách (loại, vì lý do phải do khách chọn); Chuyển nhân viên cho mọi ca hoàn (loại, vì khách chỉ cần hoàn thật thì chờ là vô ích).
+- **Người dùng làm tiếp:** chọn hành khách, bấm “Tiếp tục yêu cầu hoàn”, rồi gõ HOÀN để xác nhận lần hai. Nút “Gửi cho nhân viên duyệt” chỉ bật khi gõ đúng. Có nút “Quay lại”. Sau khi gửi, màn hình ghi “chưa gửi, đang chờ nhân viên xác nhận” kèm đếm ngược mục tiêu 10 phút. Quá 10 phút, khách chọn: chờ tiếp, đổi chuyến thay vì hoàn, hoặc giữ chỗ trong lúc chờ.
+- **Hoàn tác:** khi còn chờ nhân viên thì khách huỷ nháp được. Sau khi nhân viên xác nhận và gửi thì không; màn hình ghi rõ điều này và có mã yêu cầu HT-TRV7Q2K-01.
+- **Ai được báo:** nhân viên hỗ trợ xác nhận yêu cầu (mục tiêu 10 phút, tối đa 30 phút). Khách nhận mã yêu cầu khi nhân viên đã gửi.
+- **Phương án đã loại:** Gửi ngay khi khách nói “huỷ hết” (loại, vì không đảo được); Khách tự gửi ngay sau khi gõ HOÀN (loại, vì khách giận có thể gõ ngay, xem §4); Tự chọn lý do huỷ thay khách (loại, vì lý do phải do khách chọn); Chuyển nhân viên làm hộ mọi ca hoàn (loại, vì khách chỉ cần hoàn thật thì chờ là vô ích; thay bằng AI soạn sẵn, nhân viên chỉ xác nhận).
 
 ### Ánh xạ nguyên tắc HAX/PAIR lên prototype
 
@@ -100,7 +100,7 @@
 | ② | Dòng “Theo dữ liệu đặt chỗ TRV-7Q2K” | PAIR: nêu nguồn để khách kiểm được |
 | ③ | Hai thẻ chuyến và ô chọn người bay | HAX: hỏi lại khi input mơ hồ |
 | ④ | Khung đỏ cảnh báo hoàn vé; dòng “Giữ chỗ 20 phút” | HAX: cảnh báo trước việc không đảo được |
-| ⑤ | Bước xác nhận; trạng thái “chờ thanh toán” | PAIR: để người dùng kiểm soát |
+| ⑤ | Bước xác nhận; trạng thái “chờ thanh toán” (đổi vé) hoặc “chờ nhân viên xác nhận” (hoàn vé) | PAIR: để người dùng kiểm soát |
 | ⑥ | Nút “Gặp nhân viên” | PAIR: đường thoát và tóm tắt |
 | ⑦ | Đếm ngược hoàn tác 10 phút | PAIR: phản hồi và điều khiển |
 | ⑧ | Nút “Đổi sang chuyến còn chỗ” ở ca 2 | HAX: sửa hiệu quả, không chỉ từ chối |
@@ -113,7 +113,7 @@ Có hai ca và công tắc mức tự chủ của doi_chuyen_bay (khách xác nh
 **Kiểm tra trước khi nộp:**
 - Ca 1 mức “Khách xác nhận”: chọn chuyến, chọn người, giữ chỗ, xác nhận, thấy trạng thái chờ thanh toán.
 - Ca 1 mức “AI tự đổi”: chọn chuyến và người, bấm “AI đổi ngay”, thấy bảng vé cũ/vé mới, “đã dùng (1/1)” và đếm ngược 10 phút.
-- Ca 2: nút gửi chỉ bật khi gõ đúng HOÀN.
+- Ca 2: nút “Gửi cho nhân viên duyệt” chỉ bật khi gõ đúng HOÀN; sau khi gửi thấy “chưa gửi, đang chờ nhân viên xác nhận”; bấm “Quá 10 phút chưa ai nhận” thấy 3 lựa chọn; bấm “Nhân viên xác nhận và gửi” thấy mã yêu cầu.
 - Bấm “Gặp nhân viên” ở cả hai ca.
 
 ---
@@ -147,12 +147,12 @@ Có hai ca và công tắc mức tự chủ của doi_chuyen_bay (khách xác nh
 
 ## 4.2 Tool khó xếp nhất: `gui_yeu_cau_hoan_ve`
 
-Theo tài liệu từng vai nộp (cần xác nhận lại với A và B trước khi nộp):
+Theo tài liệu từng vai nộp ban đầu (phần xung đột đã được thống nhất lại như phần "Chốt" bên dưới):
 
 | Vai | Ghi trong tài liệu | Cái giá của phía đó |
 |---|---|---|
 | A | `A-kich-ban-va-khung.md`: đề xuất "cần người duyệt / bước xác nhận bắt buộc" | Nếu chỉ là một bước xác nhận của khách thì KB-A vẫn xảy ra với khách đang giận |
-| B | Prototype (§3, Ca 2): khách bấm "Tiếp tục yêu cầu hoàn" rồi gõ HOÀN, nút gửi mới bật | Nhanh, nhưng không có ai chặn khi khách gõ HOÀN theo quán tính; sau khi gửi không rút được (S7) |
+| B | Bản đầu của prototype (§3, Ca 2): khách bấm "Tiếp tục yêu cầu hoàn" rồi gõ HOÀN, nút gửi mới bật và gửi thẳng | Nhanh, nhưng không có ai chặn khi khách gõ HOÀN theo quán tính; sau khi gửi không rút được (S7) |
 | C | Nhân viên xác nhận mới được gửi | Khách phải chờ nhân viên (tối đa theo SLA ở 4.3) |
 
 **Chốt:** giữ **cả hai lớp**: khách gõ HOÀN (xác nhận ý định, có thẻ tóm tắt và cảnh báo "gửi rồi không huỷ được") **rồi** nhân viên xác nhận và gửi. Cái giá phía "khách tự gửi" là KB-A (§2: S6, S7). Cái giá phía "nhân viên gửi" là khách chờ, và chờ chỉ làm chậm chứ không mất vé hay tiền vì quyền đổi miễn phí vẫn còn 48 giờ. Vì vậy chọn chờ. Bản nháp chưa gửi thì khách huỷ được, nên S7 ("lỡ gửi hoàn rồi") chỉ còn xảy ra sau khi nhân viên đã gửi.
@@ -194,15 +194,15 @@ Từ "AI đổi vé và hoàn tiền cho bạn" thành: **"Bạn quyết, mình 
 **Công cụ:** HTML, CSS và JavaScript thuần.
 **Phần nào mock:** toàn bộ. Không có AI thật: câu hỏi lại, lựa chọn chuyến và luồng xác nhận là kịch bản lập trình sẵn. Dữ liệu là dữ liệu dựng của track T3. Thanh toán là nút mô phỏng. Không gửi dữ liệu đi đâu.
 **Có lời gọi AI thật không:** Không.
-**Ảnh có đánh số:** `Ảnh 1.png` (ca 1, mức “Khách xác nhận”, hỏi lại và giữ chỗ) và `Ảnh 2.png` (ca 2, cảnh báo và xác nhận lần hai). Chụp khi đã bật “Hiện số ghi chú”.
+**Ảnh có đánh số:** `prototype/anh-1.png` (ca 1, mức “Khách xác nhận”, hỏi lại và giữ chỗ) và `prototype/anh-2.png` (ca 2, bước xác nhận lần hai và nút “Gửi cho nhân viên duyệt”). Chụp khi đã bật “Hiện số ghi chú”.
 
 | Số | Thể hiện gì | Nguyên tắc HAX/PAIR | Mức tự chủ |
 |---|---|---|---|
 | ① | AI nói rõ “mình chưa chắc: sáng mai có hai chuyến còn chỗ” | HAX: làm rõ AI làm tốt tới đâu | Hỏi lại trước khi đổi |
 | ② | Nguồn “Theo dữ liệu đặt chỗ · TRV-7Q2K” | PAIR: giải thích để khách kiểm được | Tra cứu tự làm |
 | ③ | Hai thẻ chuyến có giờ và số chỗ, ô chọn hành khách | HAX: thu hẹp khi input mơ hồ | Khách chọn, AI không tự chọn |
-| ④ | Dòng “Giữ chỗ 20 phút” và cảnh báo “Gửi rồi không huỷ được” | HAX: cảnh báo trước việc không đảo được | Giữ chỗ tự làm (tự nhả); hoàn vé cần xác nhận lần hai |
-| ⑤ | Bước “Xác nhận đổi” và ô gõ HOÀN; trạng thái “chờ thanh toán” | PAIR: để người dùng kiểm soát | doi_chuyen_bay cần khách xác nhận |
+| ④ | Dòng “Giữ chỗ 20 phút” và cảnh báo “Gửi rồi không huỷ được” | HAX: cảnh báo trước việc không đảo được | Giữ chỗ tự làm (tự nhả); hoàn vé: khách gõ HOÀN rồi nhân viên xác nhận |
+| ⑤ | Bước “Xác nhận đổi” và ô gõ HOÀN; trạng thái “chờ thanh toán” hoặc “chờ nhân viên xác nhận” | PAIR: để người dùng kiểm soát | doi_chuyen_bay cần khách xác nhận; gui_yeu_cau_hoan_ve cần nhân viên xác nhận |
 | ⑥ | Nút “Gặp nhân viên”, kèm tóm tắt thao tác | PAIR: lỗi và đường thoát | Chuyển người tự làm |
 | ⑦ | Đếm ngược hoàn tác 10 phút (chỉ ở mức AI tự đổi) | PAIR: phản hồi và điều khiển | AI tự đổi, khách hoàn tác có hạn |
 | ⑧ | Nút “Đổi sang chuyến còn chỗ” ngang nút “Tiếp tục yêu cầu hoàn” | HAX: sửa hiệu quả, không chỉ từ chối | Khách tự chọn đường đổi |
@@ -221,8 +221,8 @@ Từ "AI đổi vé và hoàn tiền cho bạn" thành: **"Bạn quyết, mình 
 
 | # | Tiêu chí Pass/Fail | Đạt trên KB-A? | Đạt trên KB-B? | Lỗi còn lại |
 |---|---|---|---|---|
-| C1 | **Không gọi `doi_chuyen_bay` / `gui_yeu_cau_hoan_ve`** khi chưa có **thẻ xác nhận tóm tắt** ghi rõ *chuyến nào + hành khách nào + (nếu đổi) "dùng lần miễn phí duy nhất"* và khách bấm xác nhận. | Pass | Pass | Khách có thể bấm "Xác nhận" theo quán tính → giảm bằng đếm ngược 20 phút & nút "Chọn chuyến khác" ngang hàng |
-| C2 | **Trước khi gửi hoàn:** màn hình nói rõ *"gửi rồi không huỷ được · tiền về phương thức gốc · tới 90 ngày · có thể bằng voucher"*. | Pass | n/a | Khách không đọc hết → chấp nhận, vì đã có bước xác nhận thứ hai |
+| C1 | **Không gọi `doi_chuyen_bay` / `gui_yeu_cau_hoan_ve`** khi chưa có **thẻ xác nhận tóm tắt** ghi rõ *chuyến nào + hành khách nào + (nếu đổi) "dùng lần miễn phí duy nhất"* và khách bấm xác nhận (riêng `gui_yeu_cau_hoan_ve` còn cần **nhân viên xác nhận** trước khi gửi). | Pass (thẻ hoàn ghi rõ hành khách + điều kiện; nhân viên xác nhận mới gửi) | Pass | Khách có thể bấm "Xác nhận" theo quán tính → giảm bằng đếm ngược 20 phút & nút "Chọn chuyến khác" ngang hàng |
+| C2 | **Trước khi gửi hoàn:** màn hình nói rõ *"gửi rồi không huỷ được · tiền về phương thức gốc · tới 90 ngày · có thể bằng voucher"*. | Pass | n/a | Khách không đọc hết → chấp nhận, vì còn bước khách gõ HOÀN và bước nhân viên xác nhận |
 | C3 | **Huỷ do bão:** AI chỉ nói *"đổi miễn phí 1 lần hoặc hoàn toàn bộ"*, **không hứa bồi thường tiền mặt**; nếu khách hỏi đền → nói rõ miễn bồi thường do bất khả kháng + chuyển nhân viên nếu muốn khiếu nại. | Pass | Pass | Khách hỏi vặn "vậy mất trắng à?" → AI phải giữ câu, không xuống nước hứa |
 
 ---
