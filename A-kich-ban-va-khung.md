@@ -153,24 +153,24 @@ Trong *Đặt chỗ của tôi*, khách vừa nhận tin chuyến huỷ, nhắn 
 
 ## Cấu trúc repo
 lab5-t3/
-├── README.md # bảng thành viên + phân vai A/B/C
-├── spec.md # dàn ý 03-spec-template, gồm §1–§7
+├── README.md
+├── spec.md
 ├── fixtures/
-│ ├── booking-TRV-7Q2K.json # đúng dữ liệu mục 2 track
-│ ├── flights.json # BM217 (1 chỗ) / BM201 (9) / BM205 (4)
-│ └── policy-bay-mau.md # đổi miễn phí 1 lần/48h, hoàn toàn bộ, bão không đền
+│   ├── booking-TRV-7Q2K.json
+│   ├── flights.json
+│   └── policy-bay-mau.md
 ├── prototype/
-│ ├── index.html # hoặc link Figma để ở README
-│ ├── screens/
-│ │ ├── 01-banner-huy.png
-│ │ ├── 02-chat-mo-ho.png # AI hỏi lại "sớm nhất" = chuyến nào
-│ │ ├── 03-the-xac-nhan.png # thẻ tóm tắt + đếm ngược 20 phút
-│ │ ├── 04-hau-doi-nham.png # màn hình khách thấy sau khi AI đổi nhầm
-│ │ └── 05-hoan-ve-canh-bao.png # cảnh báo "không huỷ được, 90 ngày"
-│ └── assets/
+│   ├── index.html
+│   ├── screens/
+│   │   ├── 01-banner-huy.png
+│   │   ├── 02-chat-mo-ho.png
+│   │   ├── 03-the-xac-nhan.png
+│   │   ├── 04-hau-doi-nham.png
+│   │   └── 05-hoan-ve-canh-bao.png
+│   └── assets/
 └── demo/
-├── demo-script.md # kịch bản bấm 8 bước dưới đây
-└── ca-la-playbook.md # khung trả lời ca lạ của TA
+    ├── demo-script.md
+    └── ca-la-playbook.md
 
 
 ## Kịch bản demo (ca chọn: **trợ lý vừa đổi nhầm** — KB-B)
