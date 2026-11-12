@@ -330,7 +330,7 @@
                     </tr>
                     <tr>
                         <td><code>gui_yeu_cau_hoan_ve</code></td>
-                        <td>Cần xác nhận lần hai</td>
+                        <td>Khách gõ HOÀN + nhân viên xác nhận (AI không có quyền gửi)</td>
                         <td>Không huỷ được; tiền về trong tới 90 ngày</td>
                     </tr>
                 </table>
@@ -368,6 +368,7 @@
         function setMode(m) { S.mode = m; resetCa1(); }
         function setTab(t) {
             clearTimer();
+            S.heldCa2 = false;
             S.tab = t;
             if (t === 1) resetCa1(); else { S.step = 'ca2ask'; S.an = S.binh = false; S.typed = ''; render(); }
         }
@@ -392,6 +393,12 @@
         function payDone() { clearTimer(); S.step = 'paid'; render(); }
         function undo() { clearTimer(); S.step = 'undone'; render(); }
         function go(step) { clearTimer(); S.step = step; render(); }
+        // Ca 2: khách đã gõ HOÀN → gửi cho nhân viên duyệt (AI không có quyền gửi); mục tiêu 10 phút
+        function sendToStaff() {
+            S.step = 'ca2wait';
+            startCountdown(600, () => { S.step = 'ca2overdue'; render(); });
+            render();
+        }
         function staff() { clearTimer(); S.step = 'staff'; render(); }
 
         // Ca 1 ở mức "AI tự đổi": AI chọn sau khi khách đưa đủ chuyến và người
@@ -532,20 +539,61 @@
 
             if (S.step === 'ca2confirm') {
                 bot = `<div class="msg bot">
-      <div class="warn">${N(5)}Bước xác nhận lần hai. Gõ <b>HOÀN</b> để gửi yêu cầu hoàn cho ${paxName()}.</div>
+      <div class="warn">${N(5)}Bước xác nhận lần hai. Gõ <b>HOÀN</b> để xác nhận bạn muốn hoàn cho ${paxName()}. Sau đó <b>nhân viên xác nhận và gửi</b>; trợ lý không có quyền gửi yêu cầu hoàn.</div>
       <input type="text" id="typed" placeholder="Gõ HOÀN" value="${S.typed}" oninput="typedChanged(this.value)" style="padding:8px;border:1px solid #888;border-radius:6px;width:180px">
       <div class="btns">
         <button class="b o" onclick="go('ca2ask')">Quay lại</button>
-        <button class="b d" id="send" disabled onclick="go('sent')">Gửi yêu cầu hoàn</button>
+        <button class="b d" id="send" disabled onclick="sendToStaff()">Gửi cho nhân viên duyệt</button>
       </div></div>`;
+                return you + bot;
+            }
+
+            if (S.step === 'ca2wait') {
+                bot = `<div class="msg bot">
+      <div class="warn">${N(5)}Đã soạn xong yêu cầu hoàn cho ${paxName()} (mã nháp HT-TRV7Q2K-01). <b>Chưa gửi</b>: đang chờ nhân viên xác nhận, còn <span id="cd">${fmt(S.sec)}</span> so với mục tiêu 10 phút. Trợ lý không có quyền gửi.</div>
+      <div class="src">Nhân viên thấy: mã đặt chỗ TRV-7Q2K, hành khách trong yêu cầu, lý do huỷ (bão), khách đã gõ HOÀN, lịch sử chat.</div>
+      <div class="btns">
+        <button class="b o" onclick="go('ca2cancel')">Huỷ bản nháp</button>
+        <button class="b o" onclick="staff()">${N(6)}Gặp nhân viên</button>
+      </div>
+      <div class="src">Mô phỏng để xem demo:</div>
+      <div class="btns">
+        <button class="b p" onclick="go('sent')">Nhân viên xác nhận và gửi</button>
+        <button class="b o" onclick="go('ca2overdue')">Quá 10 phút chưa ai nhận</button>
+      </div></div>`;
+                return you + bot;
+            }
+
+            if (S.step === 'ca2overdue') {
+                bot = `<div class="msg bot">
+      <div class="warn">${N(5)}<b>Chưa có nhân viên nhận yêu cầu của bạn</b> (đã quá 10 phút). Yêu cầu hoàn vẫn được lưu, <b>chưa gửi</b>, bạn chưa mất quyền lợi nào: quyền đổi miễn phí còn đến hết 48 giờ. Mình đã nhắc lại nhân viên. Bạn chọn:</div>
+      ${S.heldCa2 ? `<div class="ok">Đã giữ tạm BM 201 trong 20 phút trong lúc chờ. Chưa đổi vé.</div>` : ''}
+      <div class="btns" style="flex-direction:column;align-items:stretch">
+        <button class="b o" onclick="go('ca2waitmore')">Chờ tiếp và báo tôi khi có người</button>
+        <button class="b o" onclick="setTab(1)">${N(8)}Đổi sang chuyến còn chỗ thay vì hoàn</button>
+        <button class="b o" onclick="S.heldCa2 = true; render()">Giữ chỗ chuyến sáng mai trong lúc chờ</button>
+      </div></div>`;
+                return you + bot;
+            }
+
+            if (S.step === 'ca2waitmore') {
+                bot = `<div class="msg bot">
+      <div class="ok">Mình sẽ báo bạn khi nhân viên nhận. Yêu cầu vẫn là <b>bản nháp chưa gửi</b>, tối đa chờ theo SLA 30 phút.</div>
+      <div class="btns"><button class="b o" onclick="go('ca2cancel')">Huỷ bản nháp</button><button class="b o" onclick="staff()">${N(6)}Gặp nhân viên</button></div></div>`;
+                return you + bot;
+            }
+
+            if (S.step === 'ca2cancel') {
+                bot = `<div class="msg bot">
+      <div class="ok">Đã huỷ bản nháp. <b>Chưa gửi gì</b>, bạn vẫn còn lần đổi miễn phí.</div>
+      <div class="btns"><button class="b p" onclick="setTab(1)">${N(8)}Đổi sang chuyến còn chỗ</button><button class="b o" onclick="go('ca2ask')">Quay lại</button></div></div>`;
                 return you + bot;
             }
 
             if (S.step === 'sent') {
                 bot = `<div class="msg bot">
-      <div class="ok">Đã gửi yêu cầu hoàn. Mã yêu cầu: HT-TRV7Q2K-01.</div>
+      <div class="ok">Nhân viên đã xác nhận và gửi yêu cầu hoàn. Mã yêu cầu: HT-TRV7Q2K-01.</div>
       <div class="stop">${N(4)}Gửi rồi không huỷ được. Trợ lý không rút lại được yêu cầu này.</div>
-      <div class="ok">Nhân viên đã nhận ca để theo dõi.</div>
       <div class="btns"><button class="b o" onclick="staff()">${N(6)}Gặp nhân viên về yêu cầu này</button></div></div>`;
                 return you + bot;
             }
@@ -554,7 +602,7 @@
 
         function staffHTML() {
             return `<div class="msg bot">
-    <div class="ok">${N(6)}Mình đã chuyển cho nhân viên, chờ khoảng 5 phút. Nhân viên thấy sẵn: chuyến BM 213 bị huỷ, 2 hành khách, và những thao tác bạn đã làm. Bạn không cần kể lại.</div>
+    <div class="ok">${N(6)}Mình đã chuyển cho nhân viên, mục tiêu phản hồi trong 10 phút, tối đa 30 phút. Nhân viên thấy sẵn: chuyến BM 213 bị huỷ, 2 hành khách, và những thao tác bạn đã làm. Bạn không cần kể lại.</div>
     <div class="btns"><button class="b o" onclick="go('start')">Quay lại trợ lý</button></div></div>`;
         }
 
@@ -566,14 +614,15 @@
 
         const PROMISE = {
             confirm: '"Mình giữ chỗ cho bạn trước; bạn bấm xác nhận thì mình mới đổi vé." Việc đảo được (giữ chỗ 20 phút) thì AI tự làm. Việc dùng lần đổi miễn phí thì chờ khách.',
-            auto: '"Mình đổi luôn cho bạn, sai thì bấm hoàn tác trong 10 phút." Nhanh hơn, nhưng AI đã chọn chuyến khi khách còn mơ hồ. Sau 10 phút không còn hoàn tác bằng nút.'
+            auto: '"Mình đổi luôn cho bạn, sai thì bấm hoàn tác trong 10 phút." Nhanh hơn, nhưng AI đã chọn chuyến khi khách còn mơ hồ. Sau 10 phút không còn hoàn tác bằng nút.',
+            refund: '"Bạn quyết, mình dọn đường." Mình soạn sẵn yêu cầu hoàn; bạn gõ HOÀN để xác nhận; nhân viên xác nhận thì mới gửi. Trợ lý không có quyền gửi. Quá 10 phút chưa ai nhận thì yêu cầu vẫn là bản nháp, bạn chọn chờ tiếp, đổi chuyến hoặc giữ chỗ.'
         };
         const NOTES = [
             ['1', 'Nói rõ AI chưa chắc, và vì sao', 'HAX: làm rõ AI làm tốt tới đâu'],
             ['2', 'Nêu nguồn của thông tin', 'PAIR: giải thích để khách kiểm được'],
             ['3', 'Hỏi lại khi input mơ hồ, không đoán', 'HAX: thu hẹp khi nghi ngờ'],
             ['4', 'Nói rõ hậu quả hoặc thời hạn giữ chỗ', 'HAX: cảnh báo trước việc không đảo được'],
-            ['5', 'Xác nhận trước thao tác khó đảo; trạng thái chờ thanh toán', 'PAIR: để người dùng kiểm soát'],
+            ['5', 'Xác nhận trước thao tác khó đảo; trạng thái chờ thanh toán (đổi vé) hoặc chờ nhân viên xác nhận (hoàn vé)', 'PAIR: để người dùng kiểm soát'],
             ['6', 'Đường sang người thật, kèm tóm tắt', 'PAIR: lỗi và đường thoát'],
             ['7', 'Hoàn tác có hạn 10 phút', 'PAIR: phản hồi và điều khiển'],
             ['8', 'Đường đổi chuyến ngang nút hoàn vé', 'HAX: sửa hiệu quả, không chỉ từ chối']
@@ -586,7 +635,7 @@
             document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
             $('#phone').innerHTML = `<div class="trip"><b>BM 213 · Hà Nội → TP.HCM · 12/11 19:00 · ĐÃ HUỶ</b> do thời tiết (bão).<br>2 hành khách: Nguyễn Minh An · bé Nguyễn Gia Bình (5 tuổi)</div>`
                 + (S.step === 'staff' ? staffHTML() : (S.tab === 1 ? ca1() : ca2()));
-            $('#promise').textContent = PROMISE[S.mode];
+            $('#promise').textContent = S.tab === 2 ? PROMISE.refund : PROMISE[S.mode];
             $('#dmode').textContent = S.mode === 'confirm' ? 'Khách xác nhận' : 'AI tự đổi + hoàn tác 10 phút';
             $('#notes').innerHTML = '<tr><th></th><th>Ghi chú</th><th>Nguyên tắc</th></tr>' +
                 NOTES.map(r => `<tr><td>${N(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
@@ -596,6 +645,8 @@
         document.querySelectorAll('#modes button').forEach(b => b.onclick = () => setMode(b.dataset.m));
         $('#showNotes').onchange = render;
         render();
+        // Mở thẳng ca 2 ở bước xác nhận (dùng khi chụp ảnh): index.html#ca2
+        if (location.hash === '#ca2') { setTab(2); S.an = S.binh = true; S.step = 'ca2confirm'; S.typed = 'HOÀN'; render(); typedChanged('HOÀN'); }
     </script>
 </body>
 
